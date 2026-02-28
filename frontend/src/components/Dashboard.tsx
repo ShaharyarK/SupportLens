@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import {
-    BarChart3, Clock, MessageSquare, Filter, ChevronDown, ChevronRight, Activity
+    BarChart3, Clock, MessageSquare, Filter, ChevronDown, ChevronRight, Activity, Search
 } from 'lucide-react';
 import { api } from '../api';
 import type { Trace, Analytics } from '../types';
@@ -20,7 +20,14 @@ export const Dashboard: React.FC<{ refreshKey: number }> = ({ refreshKey }) => {
     const [traces, setTraces] = useState<Trace[]>([]);
     const [analytics, setAnalytics] = useState<Analytics | null>(null);
     const [filter, setFilter] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
     const [expandedId, setExpandedId] = useState<string | null>(null);
+
+    const filteredTraces = traces.filter(trace => {
+        if (!searchQuery) return true;
+        const q = searchQuery.toLowerCase();
+        return trace.user_message.toLowerCase().includes(q) || trace.bot_response.toLowerCase().includes(q);
+    });
 
     const loadData = async () => {
         try {
@@ -48,7 +55,7 @@ export const Dashboard: React.FC<{ refreshKey: number }> = ({ refreshKey }) => {
                 </h1>
 
                 {analytics && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl">
                         <div className="bg-gradient-to-br from-indigo-50 to-white p-5 rounded-xl border border-indigo-100 shadow-sm flex items-center justify-between transition-transform hover:-translate-y-1 duration-200">
                             <div>
                                 <p className="text-indigo-600 font-medium text-sm mb-1 uppercase tracking-wider">Total Traces</p>
@@ -91,27 +98,39 @@ export const Dashboard: React.FC<{ refreshKey: number }> = ({ refreshKey }) => {
 
             {/* Trace List */}
             <div className="flex-1 overflow-hidden flex flex-col">
-                <div className="px-6 py-4 flex justify-between items-center bg-white border-b border-slate-100">
+                <div className="px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white border-b border-slate-100 gap-4">
                     <h2 className="text-lg font-semibold text-slate-800">Recent Traces</h2>
-                    <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded-lg p-1">
-                        <Filter size={16} className="text-slate-400 ml-2" />
-                        <select
-                            value={filter}
-                            onChange={(e) => setFilter(e.target.value)}
-                            className="bg-transparent border-none text-sm text-slate-700 outline-none pr-3 py-1.5 cursor-pointer appearance-none hover:text-slate-900 focus:ring-0"
-                            style={{ paddingRight: '10px' }}
-                        >
-                            <option value="">All Categories</option>
-                            {Object.keys(categoryColors).map(cat => (
-                                <option key={cat} value={cat}>{cat}</option>
-                            ))}
-                        </select>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded-lg p-1 px-3 w-full sm:w-64">
+                            <Search size={16} className="text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder="Search traces..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="bg-transparent border-none text-sm text-slate-700 outline-none py-1.5 w-full focus:ring-0 focus:outline-none placeholder-slate-400"
+                            />
+                        </div>
+                        <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded-lg p-1">
+                            <Filter size={16} className="text-slate-400 ml-2" />
+                            <select
+                                value={filter}
+                                onChange={(e) => setFilter(e.target.value)}
+                                className="bg-transparent border-none text-sm text-slate-700 outline-none pr-3 py-1.5 cursor-pointer appearance-none hover:text-slate-900 focus:ring-0"
+                                style={{ paddingRight: '10px' }}
+                            >
+                                <option value="">All Categories</option>
+                                {Object.keys(categoryColors).map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto bg-slate-50 p-6 custom-scrollbar">
                     <div className="space-y-3">
-                        {traces.map((trace) => {
+                        {filteredTraces.map((trace) => {
                             const isExpanded = expandedId === trace.id;
                             const badgeColor = categoryColors[trace.category] || defaultColor;
 
@@ -128,11 +147,11 @@ export const Dashboard: React.FC<{ refreshKey: number }> = ({ refreshKey }) => {
                                             {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                                         </div>
 
-                                        <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center">
-                                            <div className="w-full sm:w-1/3 text-sm truncate font-medium text-slate-800">
+                                        <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-2 sm:gap-6 sm:items-center">
+                                            <div className="w-full sm:w-2/5 max-w-[300px] text-sm truncate font-medium text-slate-800">
                                                 {trace.user_message}
                                             </div>
-                                            <div className="w-full sm:w-1/2 text-sm truncate text-slate-500">
+                                            <div className="w-full sm:w-3/5 max-w-[500px] text-sm truncate text-slate-500">
                                                 {trace.bot_response}
                                             </div>
                                         </div>
@@ -145,8 +164,9 @@ export const Dashboard: React.FC<{ refreshKey: number }> = ({ refreshKey }) => {
                                                 <span className="text-xs text-slate-400 font-medium">
                                                     {format(new Date(trace.timestamp), 'MMM d, HH:mm')}
                                                 </span>
-                                                <span className="text-xs text-slate-400">
-                                                    {trace.response_time_ms} ms
+                                                <span className="text-xs flex items-center justify-end space-x-1 mt-0.5">
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${trace.response_time_ms < 1000 ? 'bg-emerald-400' : trace.response_time_ms < 3000 ? 'bg-amber-400' : 'bg-red-400'}`}></span>
+                                                    <span className="text-slate-400">{trace.response_time_ms} ms</span>
                                                 </span>
                                             </div>
                                         </div>
@@ -175,11 +195,13 @@ export const Dashboard: React.FC<{ refreshKey: number }> = ({ refreshKey }) => {
                             );
                         })}
 
-                        {traces.length === 0 && (
+                        {filteredTraces.length === 0 && (
                             <div className="text-center py-16 bg-white rounded-xl border border-slate-200 border-dashed">
                                 <MessageSquare className="mx-auto h-12 w-12 text-slate-300 mb-3" />
                                 <h3 className="text-lg font-medium text-slate-900">No traces found</h3>
-                                <p className="text-slate-500 text-sm mt-1">Start chatting to see results here.</p>
+                                <p className="text-slate-500 text-sm mt-1">
+                                    {traces.length > 0 ? "No traces match your search." : "Start chatting to see results here."}
+                                </p>
                             </div>
                         )}
                     </div>
