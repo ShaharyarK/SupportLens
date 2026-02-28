@@ -9,5 +9,7 @@ COPY . .
 
 EXPOSE 8000
 
+ENV PYTHONPATH=/app
+
 # Run seed and then start uvicorn
-CMD ["sh", "-c", "python seed.py && uvicorn main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "python app/seed.py && uvicorn app.main:app --host 0.0.0.0 --port 8000"]

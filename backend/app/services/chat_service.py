@@ -1,18 +1,4 @@
-import os
-from dotenv import load_dotenv
-from huggingface_hub import InferenceClient
-
-load_dotenv()
-
-HF_TOKEN = os.getenv("HF_TOKEN")
-if not HF_TOKEN:
-    print("WARNING: HF_TOKEN is not set in environment or .env file.")
-
-# Let's use a solid Instruct model for free tier
-# meta-llama/Llama-3.2-3B-Instruct or mistralai/Mistral-7B-Instruct-v0.3
-MODEL_ID = "mistralai/Mistral-7B-Instruct-v0.3"
-
-client = InferenceClient(model=MODEL_ID, token=HF_TOKEN)
+from app.core.llm import client
 
 
 def generate_chatbot_response(user_message: str) -> str:
@@ -67,14 +53,13 @@ def classify_trace(user_message: str, bot_response: str) -> str:
         )
         category = response.choices[0].message.content.strip()
 
-        # Verify and normalize response
         valid_categories = ["Billing", "Refund",
                             "Account Access", "Cancellation", "General Inquiry"]
         for valid in valid_categories:
             if valid.lower() in category.lower():
                 return valid
 
-        return "General Inquiry"  # Fallback
+        return "General Inquiry"
     except Exception as e:
         print(f"Error calling LLM for classification: {e}")
         return "General Inquiry"

@@ -1,7 +1,8 @@
 from enum import Enum
 from datetime import datetime
 from sqlalchemy import Column, String, Integer, DateTime, Enum as SQLEnum
-from database import Base
+from app.core.database import Base
+
 
 class TraceCategory(str, Enum):
     BILLING = "Billing"
@@ -9,6 +10,7 @@ class TraceCategory(str, Enum):
     ACCOUNT_ACCESS = "Account Access"
     CANCELLATION = "Cancellation"
     GENERAL_INQUIRY = "General Inquiry"
+
 
 class Trace(Base):
     __tablename__ = "traces"
