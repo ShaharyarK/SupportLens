@@ -1,4 +1,4 @@
-import { Trace, Analytics } from './types'
+import type { Trace, Analytics } from './types'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
