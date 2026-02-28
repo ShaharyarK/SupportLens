@@ -20,7 +20,7 @@ Everything is containerized and runs with a single command.
    ```bash
    HF_TOKEN="hf_your_huggingface_access_token_here"
    ```
-   *(Note: The server uses `mistralai/Mistral-7B-Instruct-v0.3` which is freely available on the Serverless Inference API)*
+   *(Note: The server uses `meta-llama/Llama-3.2-3B-Instruct` which is freely available on the Serverless Inference API)*
 
 3. Run the container cluster:
    ```bash
