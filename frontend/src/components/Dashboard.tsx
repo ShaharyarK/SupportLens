@@ -48,7 +48,7 @@ export const Dashboard: React.FC<{ refreshKey: number }> = ({ refreshKey }) => {
                 </h1>
 
                 {analytics && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div className="bg-gradient-to-br from-indigo-50 to-white p-5 rounded-xl border border-indigo-100 shadow-sm flex items-center justify-between transition-transform hover:-translate-y-1 duration-200">
                             <div>
                                 <p className="text-indigo-600 font-medium text-sm mb-1 uppercase tracking-wider">Total Traces</p>
@@ -128,7 +128,7 @@ export const Dashboard: React.FC<{ refreshKey: number }> = ({ refreshKey }) => {
                                             {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                                         </div>
 
-                                        <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-2 sm:gap-6 sm:items-center">
+                                        <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center">
                                             <div className="w-full sm:w-1/3 text-sm truncate font-medium text-slate-800">
                                                 {trace.user_message}
                                             </div>
@@ -137,7 +137,7 @@ export const Dashboard: React.FC<{ refreshKey: number }> = ({ refreshKey }) => {
                                             </div>
                                         </div>
 
-                                        <div className="flex-shrink-0 flex items-center space-x-4">
+                                        <div className="flex-shrink-0 flex items-center space-x-3">
                                             <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border whitespace-nowrap ${badgeColor}`}>
                                                 {trace.category}
                                             </span>

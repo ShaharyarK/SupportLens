@@ -43,6 +43,18 @@ export const Chat: React.FC<{ onTraceAdded: () => void }> = ({ onTraceAdded }) =
         }
     };
 
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Auto-resize textarea
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            // Limit max height
+            const scrollHeight = textareaRef.current.scrollHeight;
+            textareaRef.current.style.height = Math.min(scrollHeight, 150) + 'px';
+        }
+    }, [input]);
+
     return (
         <div className="flex flex-col h-full bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-5 text-white flex items-center space-x-3 shadow-sm z-10">
@@ -62,9 +74,9 @@ export const Chat: React.FC<{ onTraceAdded: () => void }> = ({ onTraceAdded }) =
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${msg.role === 'user' ? 'bg-indigo-100 text-indigo-700' : 'bg-white border border-slate-200 text-slate-700'}`}>
                                 {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                             </div>
-                            <div className={`p-3.5 rounded-2xl text-[15px] leading-relaxed shadow-sm ${msg.role === 'user'
-                                    ? 'bg-indigo-600 text-white rounded-br-sm'
-                                    : 'bg-white border border-slate-100 text-slate-800 rounded-bl-sm'
+                            <div className={`p-3.5 rounded-2xl text-[15px] leading-relaxed shadow-sm whitespace-pre-wrap ${msg.role === 'user'
+                                ? 'bg-indigo-600 text-white rounded-br-sm'
+                                : 'bg-white border border-slate-100 text-slate-800 rounded-bl-sm'
                                 }`}>
                                 {msg.content}
                             </div>
@@ -88,18 +100,25 @@ export const Chat: React.FC<{ onTraceAdded: () => void }> = ({ onTraceAdded }) =
             </div>
 
             <div className="p-4 bg-white border-t border-slate-100">
-                <form onSubmit={handleSubmit} className="flex relative items-center">
-                    <input
-                        type="text"
+                <form onSubmit={handleSubmit} className="flex relative items-end">
+                    <textarea
+                        ref={textareaRef}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSubmit(e);
+                            }
+                        }}
+                        rows={1}
                         placeholder="Type your message..."
-                        className="flex-1 bg-slate-100 border-transparent focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 rounded-full py-3.5 pl-5 pr-14 outline-none transition-all duration-200 text-slate-800 placeholder-slate-400"
+                        className="flex-1 bg-slate-100 border-transparent focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 rounded-2xl py-3.5 pl-5 pr-14 outline-none transition-all duration-200 text-slate-800 placeholder-slate-400 resize-none min-h-[52px]"
                     />
                     <button
                         type="submit"
                         disabled={!input.trim() || isLoading}
-                        className="absolute right-2 p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                        className="absolute right-2 bottom-2 p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                     >
                         {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} className="ml-0.5" />}
                     </button>

@@ -11,14 +11,14 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex p-4 lg:p-6 gap-6 flex-col lg:flex-row font-sans">
+    <div className="min-h-screen bg-slate-100 flex p-4 lg:p-6 gap-4 flex-col lg:flex-row font-sans flex-nowrap overflow-hidden">
       {/* Chat Section */}
       <div className="w-full lg:w-[400px] xl:w-[480px] h-[600px] lg:h-[calc(100vh-48px)] flex-shrink-0">
         <Chat onTraceAdded={handleTraceAdded} />
       </div>
 
       {/* Dashboard Section */}
-      <div className="flex-1 h-[800px] lg:h-[calc(100vh-48px)]">
+      <div className="flex-1 min-w-0 h-[800px] lg:h-[calc(100vh-48px)]">
         <Dashboard refreshKey={refreshKey} />
       </div>
     </div>
