@@ -1,3 +1,4 @@
+from fastapi.responses import PlainTextResponse
 import time
 import uuid
 from typing import List, Optional
@@ -147,3 +148,18 @@ def get_analytics(db: Session = Depends(database.get_db)):
         category_breakdown=breakdown,
         average_response_time_ms=round(avg_time, 2)
     )
+
+
+@app.get("/api/export", response_class=PlainTextResponse)
+def export_traces_csv(db: Session = Depends(database.get_db)):
+    traces = db.query(models.Trace).order_by(
+        models.Trace.timestamp.desc()).all()
+    csv_content = "id,timestamp,category,response_time_ms,user_message,bot_response\n"
+    for t in traces:
+        # Replace newlines and commas to keep CSV safe
+        user_msg = t.user_message.replace('"', '""').replace('\n', ' ')
+        bot_msg = t.bot_response.replace('"', '""').replace('\n', ' ')
+        cat_name = t.category.value if isinstance(
+            t.category, models.TraceCategory) else str(t.category)
+        csv_content += f'"{t.id}","{t.timestamp}","{cat_name}",{t.response_time_ms},"{user_msg}","{bot_msg}"\n'
+    return csv_content
