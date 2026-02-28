@@ -4,7 +4,7 @@ import {
     BarChart3, Clock, MessageSquare, Filter, ChevronDown, ChevronRight, Activity
 } from 'lucide-react';
 import { api } from '../api';
-import { Trace, Analytics } from '../types';
+import type { Trace, Analytics } from '../types';
 
 const categoryColors: Record<string, string> = {
     'Billing': 'bg-blue-100 text-blue-700 border-blue-200',
